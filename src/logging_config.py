@@ -1,10 +1,30 @@
+# logging_config.py
 import logging
-def setup_logging(level=logging.INFO):
+
+def setup_logging(level=logging.INFO, log_file='app.log'):
     """
-    Sets up basic logging configuration.
-    
+    Sets up logging to both the console and a file.
+
     Parameters:
     - level: Logging level, e.g., logging.INFO.
+    - log_file: The file to which logs will be written.
     """
-    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=level)
-    logging.info("Logging setup complete.")
+    # Create a logger object
+    logger = logging.getLogger()
+    logger.setLevel(level)
+    
+    # Create a file handler for writing logs to a file
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(level)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    
+    # Create a console handler for outputting logs to the console
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    
+    # Add both handlers to the logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    logging.info("Logging setup complete, output directed to both console and file.")
