@@ -1,7 +1,7 @@
 # logging_config.py
 import logging
 
-def setup_logging(level=logging.INFO, log_file='app.log'):
+def setup_logging(level=logging.INFO, log_file='./logs/app.log'):
     """
     Sets up logging to both the console and a file.
 
