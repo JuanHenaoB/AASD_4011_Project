@@ -6,9 +6,26 @@ import logging
 import sys
 
 class Dataset:
+    """
+        A dataset class, contains a dataframe and features for the dataframe
+    
+        Attributes
+        ----------
+        dataframe : Dataframe
+            Description of the attribute.
+    
+        Methods
+        -------
+        method_name
+            Description of the method.
+        
+        Examples
+        --------
+        Examples of how to use this class.
+    """
     
     def __init__(self):
-        self.dataframe: dataframe = None
+        self.dataframe: DataFrame = None
         self.features: [] = None
 
     def load_dataframe(self, data_path):
@@ -31,9 +48,19 @@ class Dataset:
         # TODO: Implement feature setting logic
         self.features = features
 
-    def get_dataframe(self):
-        return self.dataframe
-        
+
+    @property
+    def dataframe(self):
+        return self._dataframe
+    
+    @dataframe.setter
+    def dataframe(self,dataframe):
+        self._dataframe = dataframe
+
+    
+    @dataframe.getter
+    def dataframe(self):
+        return self._dataframe
 
     def get_features(self):
         # TODO: Implement feature retrieval logic

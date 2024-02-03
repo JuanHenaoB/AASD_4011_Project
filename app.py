@@ -18,7 +18,7 @@ if __name__ == "__main__":
     dataset_manager: DatasetManager = DatasetManager()
     dataset_manager.load_dataset("main", "all-data.csv")
     ds = dataset_manager.get_dataset("main")
-    df = ds.get_dataframe()
+    df = ds.dataframe
     print(df.head())
     # Start the data processing pipeline
 
