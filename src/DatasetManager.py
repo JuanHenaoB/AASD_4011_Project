@@ -1,12 +1,12 @@
 from src.Preprocessor import Preprocessor
 from src.FeatureExtractor import FeatureExtractor
-from pandas import DataFrame
 import logging
 from src.Dataset import Dataset
 
 
 class DatasetManager:
     """
+    # TODO - Finish docstring
     the loading, preprocessing and feature extraction for datasets.
     This class is used to manage datasets, including the
 
@@ -29,7 +29,7 @@ class DatasetManager:
     """
 
     def __init__(self):
-        self.datasets: dict[str, DataFrame] = {}
+        self.datasets: dict[str, Dataset] = {}
         self.preprocessor: Preprocessor = Preprocessor()
         self.feature_extractor: FeatureExtractor = FeatureExtractor()
         logging.info(f"Dataset manager initialized.")
@@ -37,7 +37,7 @@ class DatasetManager:
     def load_dataset(self, name: str, data_path: str) -> None:
         """
         loads a dataset into the datasets dictionary.
-
+        # TODO finish docstring
         Args:
             name (string): name to be used for the key in the key value pair {'name',dataset}
             data (string): the dataframe
@@ -46,18 +46,22 @@ class DatasetManager:
             None
         """
 
-        self.set_dataset(dataset=Dataset().load_data(data_path), name=name)
+        dataset = Dataset()
+        dataset.load_dataframe(data_path)
+        self.set_dataset(dataset, name)
+
         logging.info(f"Dataset loaded as {name}.")
 
-    def get_dataset(self, name: str) -> DataFrame:
+    def get_dataset(self, name: str) -> Dataset:
         try:
             return self.datasets[name]
         except KeyError:
             logging.error(f"Dataset '{name}' does not exist.")
             return None
 
-    def set_dataset(self, name, dataset):
+    def set_dataset(self, dataset, name):
         """
+        # TODO finish docstring
         set a dataset in the dictionary
 
         Args:

@@ -1,3 +1,5 @@
+from pandas import DataFrame
+
 import numpy as np
 import pandas as pd
 import logging
@@ -6,20 +8,20 @@ import sys
 class Dataset:
     
     def __init__(self):
-        self.dataset = None
-        self.features = None
+        self.dataframe: dataframe = None
+        self.features: [] = None
 
-    def load_data(self, data_path):
+    def load_dataframe(self, data_path):
         try:
-            self.datasets = pd.read_csv(data_path, encoding='latin', header=None)
-            logging.info(f"Dataset loaded from file.")
+            self.dataframe = pd.read_csv(data_path, encoding='latin', header=None)
+            logging.info(f"dataframe loaded from file.")
         
         except FileNotFoundError as e:
-            logging.error(f"Critical Error loading dataset: {e}")
-            sys.exit("Cannot continue without dataset.")
+            logging.error(f"Critical Error loading dataframe: {e}")
+            sys.exit("Cannot continue without dataframe.")
 
         except Exception as e:
-            logging.error(f"Error loading dataset: {str(e)}")
+            logging.error(f"Error loading dataframe: {str(e)}")
 
     def get_features(self):
         # TODO: Implement feature retrieval logic
@@ -29,7 +31,8 @@ class Dataset:
         # TODO: Implement feature setting logic
         self.features = features
 
-
+    def get_dataframe(self):
+        return self.dataframe
         
 
     def get_features(self):
