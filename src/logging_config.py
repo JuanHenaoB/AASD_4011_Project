@@ -9,6 +9,18 @@ def setup_logging(level=logging.INFO, log_file='./logs/app.log'):
     - level: Logging level, e.g., logging.INFO.
     - log_file: The file to which logs will be written.
     """
+    
+    """
+    Sets up logging to both the console and a file.
+    
+    Args:
+        level (enum): Logging level, e.g., logging.INFO.
+        log_file (string): file path of log file
+    
+    Returns:
+        None
+    """
+    
     # Create a logger object
     logger = logging.getLogger()
     logger.setLevel(level)

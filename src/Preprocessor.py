@@ -16,15 +16,8 @@ class Preprocessor:
         pass
     
     def tokenize(self, text: str) -> List[str]:
-        """
-        Tokenizes the input text into tokens.
-
-        Parameters:
-        - text: The text to tokenize.
-
-        Returns:
-        - A list of tokens.
-        """
+        
+        
         # TODO: Implement the tokenization logic. This is a placeholder example.
         tokens = text.split()  # This is a very simplistic tokenization approach.
         logging.info(f"Tokenized text into {len(tokens)} tokens.")
