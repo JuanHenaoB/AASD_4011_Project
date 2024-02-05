@@ -7,8 +7,8 @@ import pandas as pd
     Patterns. 
 
     This class is a collection of basically actions that would commonly be applied 
-    during the preprocessing step. If you want another way to do tokenization
-    put it here.
+    during the preprocessing step. 
+    REF: https://refactoring.guru/design-patterns/strategy
 
     Attributes
     ----------
@@ -29,11 +29,13 @@ import pandas as pd
 
 
 class Tokenization(PreprocessingStep):
+    #TODO
     def apply(self, data):
         # Simple example of tokenization
         return data
 
 class Balancing(PreprocessingStep):
+    #TODO - REMOVE
     def apply(self, data):
         # Assume 'data' is a DataFrame with a 'label' column
         label_counts = data['label'].value_counts()
@@ -66,13 +68,18 @@ class OneHotEncoding:
         """
         # Perform one-hot encoding on the specified label column
         encoded_labels = pd.get_dummies(data[self.label_column], prefix=self.label_column)
-        # Drop the original label column from the data
-        data = data.drop(self.label_column, axis=1)
-        # Concatenate the original data with the one-hot encoded labels
+        
+        # Convert the one-hot encoded labels from Boolean to integers
+        encoded_labels = encoded_labels.astype(int)
+
+        # Drop the original label column from the data if it's still present
+        if self.label_column in data.columns:
+            data = data.drop(self.label_column, axis=1)
+        
+        # Concatenate the original data (without the label column) with the one-hot encoded labels
         data = pd.concat([data, encoded_labels], axis=1)
 
         return data
-    
 
 
 class BalancingOneHot:
@@ -87,6 +94,8 @@ class BalancingOneHot:
         Returns:
         - DataFrame: A balanced DataFrame based on the one-hot encoded labels.
         """
+        
+        #TODO temp fix - allow more args in strategies
         label_columns = [col for col in data.columns if col.startswith('label_')]
         # Calculate the sum of each one-hot encoded label column to find the count of each class
         label_counts = data[label_columns].sum()
@@ -109,7 +118,18 @@ class BalancingOneHot:
         
         # Shuffle rows and reset index
         balanced_data = balanced_data.sample(frac=1, random_state=42).reset_index(drop=True)
-        for label in label_columns:
-            balanced_data[label] = balanced_data[label].astype(int)
+
 
         return balanced_data
+    
+
+class CombineWithOriginalData:
+    def __init__(self, original_df):
+        self.original_df = original_df
+
+    def apply(self, processed_data):
+        # Combine the original DataFrame with the processed data
+        # Ensure alignment, potentially using indices or a key column
+        combined_df = pd.concat([self.original_df, processed_data], axis=1)
+        combined_df= combined_df.drop(columns=['label'])
+        return combined_df

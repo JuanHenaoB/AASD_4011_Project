@@ -3,7 +3,8 @@ import logging
 
 class PipelineManager:
     """
-    Creates a object to manage DataPipline objects and there operation
+    Creates a object to manage DataPipline objects
+    
 
     Attributes
     ----------

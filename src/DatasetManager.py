@@ -120,3 +120,49 @@ class DatasetManager:
             processed_data = pd.DataFrame(processed_data)
         
         self._dataframes[name] = processed_data
+
+
+    def one_hot_encode(self, name, label_column):
+        """
+        Performs one-hot encoding on a specified label column of a DataFrame and removes the original column.
+
+        Parameters:
+        - name (str): The name of the dataset to apply one-hot encoding to.
+        - label_column (str): The column to be one-hot encoded.
+        """
+        if name not in self._dataframes:
+            logging.error(f"Dataset '{name}' not found.")
+            return
+
+        df = self._dataframes[name]
+        # Convert -1 labels to a string representation if needed
+        df[label_column] = df[label_column].replace(-1, 'negative')
+        # Perform one-hot encoding
+        encoded_labels = pd.get_dummies(df[label_column], prefix=label_column)
+        # Drop the original label column and update the DataFrame with encoded labels
+        df = df.drop(columns=[label_column]).join(encoded_labels)
+        self._dataframes[name] = df
+
+    def balance_dataset(self, name, label_columns):
+        """
+        Balances the dataset based on the distribution of labels.
+
+        Parameters:
+        - name (str): The name of the dataset to balance.
+        - label_columns (list of str): The columns representing the encoded labels.
+        """
+        if name not in self._dataframes:
+            logging.error(f"Dataset '{name}' not found.")
+            return
+
+        df = self._dataframes[name]
+        min_count = df[label_columns].sum().min()
+
+        balanced_dfs = []
+        for label in label_columns:
+            # Filter rows for the current label and sample min_count rows
+            label_df = df[df[label] == 1].sample(n=int(min_count), random_state=42)
+            balanced_dfs.append(label_df)
+
+        balanced_df = pd.concat(balanced_dfs).sample(frac=1, random_state=42).reset_index(drop=True)
+        self._dataframes[name] = balanced_df
