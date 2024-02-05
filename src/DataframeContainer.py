@@ -5,9 +5,9 @@ import pandas as pd
 import logging
 import sys
 
-class Dataset:
+class DataframeContainer:
     """
-        A dataset class, contains a dataframe and features for the dataframe
+        A DataframeContainer class, contains a dataframe and features for the dataframe
     
         Attributes
         ----------

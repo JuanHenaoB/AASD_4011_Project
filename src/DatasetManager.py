@@ -1,85 +1,122 @@
-from src.Preprocessor import Preprocessor
-from src.FeatureExtractor import FeatureExtractor
 import logging
-from src.Dataset import Dataset
+from datasets import load_dataset, DatasetDict
+import matplotlib.pyplot as plt
+import sys
+import pandas as pd
 
 
 class DatasetManager:
     """
-    Manages the loading, preprocessing, and feature extraction for datasets.
-
-    This class is used to manage datasets, including the loading, preprocessing,
-    and feature extraction operations. It provides methods to create and retrieve
-    datasets, as well as access the preprocessor and feature extractor.
-
+    Manages the loading, storing, and accessing of datasets for analysis and processing.
+    
+    This class provides methods to load datasets from various sources, manage them in memory,
+    and access them for data processing tasks. It supports both datasets loaded as pandas DataFrames
+    and datasets loaded from the Hugging Face 'datasets' library.
+    
     Attributes
     ----------
-    datasets : dict[str, Dataset]
-        A dictionary of dataset objects with the dataset name as the key and the
-        dataset as loaded from pd.read_csv().
-    preprocessor : Preprocessor
-        Preprocessor to be used to preprocess data.
-    feature_extractor : FeatureExtractor
-        Feature extractor to be used to extract features from data.
-
+    active_dataset_name : str
+        The name of the currently active dataset loaded from the 'datasets' library.
+    active_dataframe_name : str
+        The name of the currently active DataFrame.
+    _datasets : dict
+        A dictionary storing datasets loaded from the 'datasets' library, keyed by dataset name.
+    _dataframes : dict
+        A dictionary storing pandas DataFrames, keyed by dataframe name.
+    
     Methods
     -------
-    create_dataset(name: str, data_path: str) -> None:
-        Creates and adds a dataset into the datasets dictionary.
-
-    get_dataset(name: str) -> Dataset:
-        Retrieves a dataset from the datasets dictionary.
-
+    create_dataset(name: str, data_path: str):
+        Loads a dataset from a specified path and stores it under the given name.
+    load_dataframe(name, data_path, columns={0: 'label', 1: 'news'}):
+        Loads a CSV file as a pandas DataFrame, optionally renaming columns, and stores it.
+    check_balance(label_key='label'):
+        Plots the distribution of values in the specified label column of the active dataframe.
+    store_processed_dataset(name, processed_data):
+        Stores processed data, converting it to a DataFrame if necessary.
+    
     Examples
     --------
-    Examples of how to use this class.
+    >>> dataset_manager = DatasetManager()
+    >>> dataset_manager.load_dataframe('financial_news', 'path/to/financial_news.csv')
+    >>> dataset_manager.check_balance('label')
     """
-
+    
     def __init__(self):
-        self._datasets: dict[str, Dataset] = {}
-        self._preprocessor: Preprocessor = Preprocessor()
-        self._feature_extractor: FeatureExtractor = FeatureExtractor()
-        logging.info(f"Dataset manager initialized.")
+        self.active_dataset_name = None  # Name of the active dataset
+        self.active_dataframe_name = None  # Name of the active dataframe
+        self._datasets = {}  # Changed from list to dict for keyed access
+        self._dataframes = {}
+        logging.info("Dataset manager initialized.")
 
     @property
-    def datasets(self) -> dict[str, Dataset]:
-        return self._datasets
+    def active_dataset(self):
+        if self.active_dataset_name and self.active_dataset_name in self._datasets:
+            return self._datasets[self.active_dataset_name]
+        else:
+            logging.error("No active dataset set or dataset does not exist.")
+            return None
 
     @property
-    def preprocessor(self) -> Preprocessor:
-        return self._preprocessor
+    def active_dataframe(self):
+        if self.active_dataframe_name and self.active_dataframe_name in self._dataframes:
+            return self._dataframes[self.active_dataframe_name]
+        else:
+            logging.error("No active dataframe set or dataframe does not exist.")
+            return None
 
-    @property
-    def feature_extractor(self) -> FeatureExtractor:
-        return self._feature_extractor
+    @active_dataframe.setter
+    def active_dataframe(self, name):
+        if name in self._dataframes:
+            self.active_dataframe_name = name
+            logging.info(f"Active dataframe set to {name}.")
+        else:
+            logging.error("Dataframe name does not exist.")
 
-    def create_dataset(self, name: str, data_path: str) -> None:
+    def create_dataset(self, name: str, data_path: str):
+        try:
+            dataset = load_dataset('csv', data_files=data_path)
+            self._datasets[name] = dataset
+            if not self.active_dataset_name:  # Automatically set the first dataset as active
+                self.active_dataset_name = name
+            logging.info(f"Dataset loaded and set as {name}.")
+        except Exception as e:
+            logging.error(f"Failed to load dataset {name}: {e}")
+
+    def load_dataframe(self, name, data_path, columns={0: 'label', 1: 'news'}):
+        try:
+            df = pd.read_csv(data_path, encoding='latin', header=None)
+            df.rename(columns=columns, inplace=True)
+            self._dataframes[name] = df
+            if not self.active_dataframe_name:  # Automatically set the first dataframe as active
+                self.active_dataframe = name  # Using the setter to ensure consistency
+            logging.info(f"Dataframe {name} loaded successfully.")
+        except FileNotFoundError as e:
+            logging.error(f"Critical error loading dataframe: {e}")
+            sys.exit("Cannot continue without dataframe.")
+        except Exception as e:
+            logging.error(f"Error loading dataframe: {e}")
+
+    def check_balance(self, label_key='label'):
+        if self.active_dataframe is not None:
+            self.active_dataframe[label_key].value_counts(ascending=True).plot.barh()
+            plt.title("Balance of the target classes in the dataset")
+            plt.show()
+            print(self.active_dataframe[label_key].value_counts())
+        else:
+            logging.error("Attempted to check balance without an active dataframe set.")
+
+
+    def store_processed_dataset(self, name, processed_data):
         """
-        Creates and adds a dataset into the datasets dictionary.
+        Stores processed data within the manager.
 
-        Args:
-            name (str): Name to be used as the key in the key-value pair {'name', dataset}.
-            data_path (str): The path to the data file.
-
-        Returns:
-            None
+        Parameters:
+        - name: The name of the dataset for identification.
+        - processed_data: The processed data to store, typically a DataFrame or a list of features.
         """
-
-        dataset = Dataset()
-        dataset.load_dataframe(data_path)
-        self._datasets[name] = dataset
-        logging.info(f"Dataset loaded as {name}.")
-
-    def get_dataset(self, name: str) -> Dataset:
-        """
-        Retrieves a dataset from the datasets dictionary.
-
-        Args:
-            name (str): Name of the dataset to retrieve.
-
-        Returns:
-            Dataset: The dataset object if found, None otherwise.
-        """
-        return self._datasets.get(name, None)
-
-
+        # If processed_data is not a DataFrame but a list (e.g., from feature extraction), convert it to DataFrame
+        if not isinstance(processed_data, pd.DataFrame):
+            processed_data = pd.DataFrame(processed_data)
+        
+        self._dataframes[name] = processed_data
