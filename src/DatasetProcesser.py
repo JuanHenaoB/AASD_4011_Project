@@ -167,11 +167,11 @@ class DatasetProcessor:
         Generates word embeddings for each token in the documents.
 
         Args:
-        - list_of_lists (list of list of str): The corpus with each document as a list of tokens.
-        - word2vec_model (gensim.models.KeyedVectors): Pre-trained Word2Vec model.
+            list_of_lists (list of list of str): The corpus with each document as a list of tokens.
+            word2vec_model (gensim.models.KeyedVectors): Pre-trained Word2Vec model.
 
         Returns:
-        - List of lists containing embeddings for each token in each document.
+            List of lists containing embeddings for each token in each document.
         """
         # Extract model vocabulary for faster checking
         model_vocab = set(word2vec_model.key_to_index.keys())
@@ -239,12 +239,12 @@ class DatasetProcessor:
         Splits the dataset into training, validation, and test sets.
 
         Parameters:
-        - test_size: Fraction of the dataset to include in the test split (default is 0.2).
-        - val_size: Fraction of the test set to include in the validation split (default is 0.5).
-        - random_state: Random state for reproducibility (default is 18).
+            test_size: Fraction of the dataset to include in the test split (default is 0.2).
+            val_size: Fraction of the test set to include in the validation split (default is 0.5).
+            random_state: Random state for reproducibility (default is 18).
 
         Returns:
-        - A dictionary containing the split datasets: {'X_train': X_train, 'X_val': X_val, 'X_test': X_test, 'y_train': y_train, 'y_val': y_val, 'y_test': y_test}
+            A dictionary containing the split datasets: {'X_train': X_train, 'X_val': X_val, 'X_test': X_test, 'y_train': y_train, 'y_val': y_val, 'y_test': y_test}
         """
 
         X = np.array(embeddings)
@@ -289,15 +289,15 @@ class HFprocesser:
     A class for processing datasets using the Hugging Face library.
 
     Attributes:
-    - splits (DatasetDict): A dictionary containing the splits 'train', 'test', and 'valid'.
-    - dataset (Dataset): The raw dataset to be processed.
-    - tokenized_text_data (str): The tokenized text data.
-    - tokenizer (AutoTokenizer): The tokenizer used for tokenization.
+        splits (DatasetDict): A dictionary containing the splits 'train', 'test', and 'valid'.
+        dataset (Dataset): The raw dataset to be processed.
+        tokenized_text_data (str): The tokenized text data.
+        tokenizer (AutoTokenizer): The tokenizer used for tokenization.
 
     Methods:
-    - __init__(self, dataset): Initializes the HFprocesser object.
-    - create_train_test_val_splits(self, test_size, val_size, seed): Splits the dataset into training, testing, and validation sets.
-    - tokenize_text_data(self, text_column, tokenizer_checkpoint, max_length): Tokenizes the text data in the dataset.
+        __init__(self, dataset): Initializes the HFprocesser object.
+        create_train_test_val_splits(self, test_size, val_size, seed): Splits the dataset into training, testing, and validation sets.
+        tokenize_text_data(self, text_column, tokenizer_checkpoint, max_length): Tokenizes the text data in the dataset.
     """
 
     def __init__(self, dataset) -> None:
@@ -312,13 +312,13 @@ class HFprocesser:
         Splits a dataset into training, testing, and validation sets.
 
         Args:
-        - self.dataset (Dataset): The raw dataset to split.
-        - test_size (float): The proportion of the dataset to include in the test split.
-        - val_size (float): The proportion of the test split to include in the validation set.
-        - seed (int): The random seed for reproducible splits.
+            self.dataset (Dataset): The raw dataset to split.
+            test_size (float): The proportion of the dataset to include in the test split.
+            val_size (float): The proportion of the test split to include in the validation set.
+            seed (int): The random seed for reproducible splits.
 
         Returns:
-        - DatasetDict: A dictionary containing the splits 'train', 'test', and 'valid'.
+            DatasetDict: A dictionary containing the splits 'train', 'test', and 'valid'.
         """
         # Split raw dataset into train and test
         train_test_split = self.dataset['train'].train_test_split(test_size=test_size, seed=seed)
@@ -339,14 +339,14 @@ class HFprocesser:
         """
         Tokenizes the text data in the DatasetDict using a specified tokenizer.
 
-        Parameters:
-        - dataset_dict: DatasetDict, the dataset splits to tokenize.
-        - text_column: str, the name of the column containing text to tokenize.
-        - tokenizer_checkpoint: str, the model checkpoint for the tokenizer.
-        - max_length: int, the maximum sequence length.
+        Args:
+            dataset_dict: DatasetDict, the dataset splits to tokenize.
+            text_column: str, the name of the column containing text to tokenize.
+            tokenizer_checkpoint: str, the model checkpoint for the tokenizer.
+            max_length: int, the maximum sequence length.
 
         Returns:
-        - DatasetDict: A DatasetDict containing the tokenized splits.
+            DatasetDict: A DatasetDict containing the tokenized splits.
         """
         tokenizer = AutoTokenizer.from_pretrained(tokenizer_checkpoint)
         self.tokenizer = tokenizer
