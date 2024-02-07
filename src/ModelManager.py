@@ -9,7 +9,31 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import f1_score
 
+
+
 class ModelManager:
+    """
+    A class that manages the creation, training, and evaluation of deep learning models.
+
+    Attributes
+    ----------
+    models : dict
+        A dictionary that stores the trained models, their configurations, and training history.
+
+    Methods
+    -------
+    run_model_config(split_dict, model_config)
+        Run the model configuration and train an LSTM model based on the provided configuration parameters.
+    plot_model_history(model_name, metrics=['loss'])
+        Plot the training history for the specified metrics of a given model.
+    predict(model_name, X_test, return_class_indices=True)
+        Make predictions with the specified model on the provided test data.
+    plot_confusion_matrix(model_name, y_true, y_pred, title='Confusion Matrix')
+        Plot the confusion matrix for the given true labels and predictions.
+    print_performance_metrics(model_name, y_true, y_pred, dataset_type='Data Set')
+        Print accuracy and F1 score for the given true labels and predictions.
+    """
+    
     def __init__(self):
         self.models = {}
 
@@ -17,7 +41,7 @@ class ModelManager:
         """
         Run the model configuration.
 
-        Parameters
+        Attributes
         ----------
         split_dict : dict
             A dictionary containing the training and validation data splits.
@@ -39,7 +63,6 @@ class ModelManager:
         >>> model_config = {'model_name': 'LSTM_Model', 'units': 64, 'dropout_rate': 0.3, 'epochs': 50}
         >>> model_manager.run_model_config(split_dict, model_config)
         """
-
 
         
         model_name = model_config['model_name']

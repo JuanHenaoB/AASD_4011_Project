@@ -53,6 +53,16 @@ class DatasetManager:
         logging.info("Dataset manager initialized.")
 
     def load_word2vec_model(self, data_path):
+        """
+        Loads a Word2Vec model from the specified data path.
+
+        Args:
+            data_path (str): The path to the Word2Vec model file.
+
+        Returns:
+            self: The DatasetManager instance.
+
+        """
         self.word2vec_model = KeyedVectors.load_word2vec_format(data_path, binary=True)
         print("Word2Vec model loaded.")
         return self
@@ -171,12 +181,36 @@ class DatasetManager:
             return None
 
     def get_dataset(self, name):
+        """
+        Retrieves a dataset by name.
+
+        Args:
+            name (str): The name of the dataset to retrieve.
+
+        Returns:
+            The dataset with the specified name.
+
+        Raises:
+            KeyError: If the dataset with the specified name is not found.
+        """
         if name in self._datasets:
             return self._datasets[name]
         else:
             raise KeyError(f"Dataset '{name}' not found.")
 
     def __getitem__(self, name):
+        """
+        Retrieve a dataset by name.
+
+        Args:
+            name (str): The name of the dataset to retrieve.
+
+        Returns:
+            DatasetProcessor: The dataset processor for the specified dataset.
+
+        Raises:
+            KeyError: If the dataset with the specified name is not found.
+        """
         if name in self._dataframes:
             return DatasetProcessor(self._dataframes[name])
         else:
