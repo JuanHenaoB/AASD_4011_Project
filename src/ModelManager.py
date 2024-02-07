@@ -33,7 +33,7 @@ class ModelManager:
     print_performance_metrics(model_name, y_true, y_pred, dataset_type='Data Set')
         Print accuracy and F1 score for the given true labels and predictions.
     """
-    
+  
     def __init__(self):
         self.models = {}
 
@@ -41,7 +41,7 @@ class ModelManager:
         """
         Run the model configuration.
 
-        Attributes
+        Args
         ----------
         split_dict : dict
             A dictionary containing the training and validation data splits.
@@ -132,9 +132,9 @@ class ModelManager:
             """
             Plot the training history for the specified metrics of a given model.
 
-            Parameters:
-            - model_name: The name of the model to plot history for.
-            - metrics: A list of strings, the metrics to plot (e.g., ['loss', 'val_loss']).
+            Args:
+                model_name: The name of the model to plot history for.
+                metrics: A list of strings, the metrics to plot (e.g., ['loss', 'val_loss']).
             """
             if model_name not in self.models:
                 print(f"Model {model_name} not found.")
@@ -171,13 +171,13 @@ class ModelManager:
             """
             Make predictions with the specified model on the provided test data.
 
-            Parameters:
-            - model_name: The name of the model to use for predictions.
-            - X_test: The test data to predict on.
-            - return_class_indices: If True, convert softmax outputs to class indices.
+            Args:
+                model_name: The name of the model to use for predictions.
+                X_test: The test data to predict on.
+                return_class_indices: If True, convert softmax outputs to class indices.
 
             Returns:
-            - The predictions made by the model. If return_class_indices is True,
+                The predictions made by the model. If return_class_indices is True,
             returns class indices; otherwise, returns the raw predictions.
             """
             if model_name not in self.models:
@@ -196,11 +196,11 @@ class ModelManager:
             """
             Plot the confusion matrix for the given true labels and predictions.
 
-            Parameters:
-            - model_name: The name of the model, used for title customization.
-            - y_true: The true labels.
-            - y_pred: The predictions made by the model.
-            - title: The title for the plot.
+            Args:
+                model_name: The name of the model, used for title customization.
+                y_true: The true labels.
+                y_pred: The predictions made by the model.
+                title: The title for the plot.
             """
             cm = confusion_matrix(y_true, y_pred)
             disp = ConfusionMatrixDisplay(confusion_matrix=cm)
@@ -213,11 +213,11 @@ class ModelManager:
             """
             Print accuracy and F1 score for the given true labels and predictions.
 
-            Parameters:
-            - model_name: The name of the model, used for title customization.
-            - y_true: The true labels.
-            - y_pred: The predictions made by the model.
-            - dataset_type: A string to describe the dataset (e.g., 'Imbalanced', 'Balanced').
+            Args:
+                model_name: The name of the model, used for title customization.
+                y_true: The true labels.
+                y_pred: The predictions made by the model.
+                dataset_type: A string to describe the dataset (e.g., 'Imbalanced', 'Balanced').
             """
             # Convert y_true from one-hot encoded vectors to class indices if necessary
             if y_true.ndim > 1 and y_true.shape[1] > 1:
