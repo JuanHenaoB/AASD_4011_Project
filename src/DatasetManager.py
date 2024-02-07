@@ -2,7 +2,7 @@ import logging
 import matplotlib.pyplot as plt
 from datasets import load_dataset, DatasetDict
 import sys
-from src.DatasetProcesser import DatasetProcessor
+from DatasetProcesser import DatasetProcessor
 import pandas as pd
 from gensim.models import KeyedVectors
 
@@ -51,8 +51,6 @@ class DatasetManager:
         self.word2vec_model = None
 
         logging.info("Dataset manager initialized.")
-
-
 
     def load_word2vec_model(self, data_path):
         self.word2vec_model = KeyedVectors.load_word2vec_format(data_path, binary=True)
@@ -137,7 +135,6 @@ class DatasetManager:
         except Exception as e:
             logging.error(f"Error loading dataframe: {e}")
 
-
     def store_processed_dataset(self, name, processed_data):
         """
         Stores processed data within the manager.
@@ -145,7 +142,7 @@ class DatasetManager:
         Args:
             name: The name of the dataset for identification.
             processed_data: The processed data to store, typically a DataFrame or a list of features.
-        
+
         Returns:
             None
         """
@@ -172,10 +169,12 @@ class DatasetManager:
         else:
             logging.error(f"Dataframe '{dataframe_name}' does not exist.")
             return None
-    
 
-    
-
+    def get_dataset(self, name):
+        if name in self._datasets:
+            return self._datasets[name]
+        else:
+            raise KeyError(f"Dataset '{name}' not found.")
 
     def __getitem__(self, name):
         if name in self._dataframes:
