@@ -226,52 +226,6 @@ class DatasetProcessor:
         }
 
 
-    def split_dataset(self, test_size=0.2, val_size=0.4, random_state=18):
-        """
-        Splits the DataFrame into training, validation, and test sets.
-        
-        Parameters:
-        - test_size: float, proportion of the dataset to include in the test split.
-        - val_size: float, proportion of the test set to include in the validation split.
-        - random_state: int, seed used by the random number generator.
-        """
-        # Assuming self.df is your DataFrame and it already exists
-        X = self.df.drop(columns=[self.label_column])
-        y = self.df[self.label_column]
-
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_size, random_state=random_state)
-        X_val, X_test, y_val, y_test = train_test_split(X_test, y_test, test_size=val_size, random_state=random_state)
-
-        # Store the splits in the class
-        self.splits = {
-            'X_train': X_train, 'X_val': X_val, 'X_test': X_test,
-            'y_train': y_train, 'y_val': y_val, 'y_test': y_test
-        }
-
-
-    def tokenize_text_data(self, text_column='text', tokenizer_checkpoint='distilbert-base-uncased', max_length=512):
-            """
-            Tokenizes the text data in the DataFrame using a specified tokenizer.
-
-            Parameters:
-            - text_column: str, the name of the column containing text to tokenize.
-            - tokenizer_checkpoint: str, the model checkpoint for the tokenizer.
-            - max_length: int, the maximum sequence length.
-            """
-            tokenizer = AutoTokenizer.from_pretrained(tokenizer_checkpoint)
-            
-            def tokenize_function(examples):
-                return tokenizer(examples[text_column], padding="max_length", truncation=True, max_length=max_length)
-            
-            # Tokenize the text
-            tokenized_data = self.df[text_column].apply(lambda x: tokenize_function({'text': x}))
-            
-            # Optionally, update self.df or create a new attribute to store the tokenized data
-            self.tokenized_data = tokenized_data
-        
-
-
-
     def __getattr__(self, attr):
         # Improved attribute handling
         if attr in self.__dict__:
@@ -290,8 +244,9 @@ class HFprocesser:
     def __init__(self,dataset) -> None:
         self.splits = None
         self.dataset = dataset
-
-
+        self.tokenized_text_data = 'None'
+        self.tokenizer = None
+        print('init')
     def create_train_test_val_splits(self, test_size=0.2, val_size=0.4, seed=18):
         """
         Splits a dataset into training, testing, and validation sets.
@@ -334,12 +289,18 @@ class HFprocesser:
         - DatasetDict: A DatasetDict containing the tokenized splits.
         """
         tokenizer = AutoTokenizer.from_pretrained(tokenizer_checkpoint)
-        
+        self.tokenizer = tokenizer
         def tokenize_function(examples):
             # Ensure that the text_column is correctly processed
             return tokenizer(examples[text_column], padding="max_length", truncation=True, max_length=max_length)
         
         # Apply tokenization across all splits in the DatasetDict
         tokenized_dataset_dict = self.splits.map(tokenize_function, batched=True)
+        print(tokenized_dataset_dict)
         
+        self.tokenized_text_data = tokenized_dataset_dict 
         return tokenized_dataset_dict
+    
+
+    
+    
