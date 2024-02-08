@@ -1,6 +1,13 @@
 from sklearn.metrics import accuracy_score, f1_score
 from transformers import AutoModelForSequenceClassification, Trainer, TrainingArguments
 import torch
+import numpy as np
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+import matplotlib.pyplot as plt
+#check evaluation metrics
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import f1_score
+
 
 class HFManager:
     """A class that manages the training and evaluation of Hugging Face models.
@@ -17,7 +24,8 @@ class HFManager:
         self.models = {}
         self.ckpt = "-base-uncased"
         self.trainers = {}
-    
+        self.predictions = {}
+
     def score_metrics(self, pred):
         """Calculate the accuracy and F1 score of the predictions.
 
@@ -32,26 +40,29 @@ class HFManager:
         f1 = f1_score(labels, preds, average="weighted")
         acc = accuracy_score(labels, preds)
         return {"accuracy": acc, "f1": f1}
-    
+
     def set_trainer_args(self):
         """Set the training arguments for the models."""
-        self.training_args = TrainingArguments(output_dir='training_dir',
-                                  evaluation_strategy='epoch',
-                                  save_strategy='epoch',
-                                  num_train_epochs=3,
-                                  per_device_train_batch_size=16,
-                                  per_device_eval_batch_size=64,
-                                  )
-    
+        self.training_args = TrainingArguments(
+            output_dir="training_dir",
+            evaluation_strategy="epoch",
+            save_strategy="epoch",
+            num_train_epochs=3,
+            per_device_train_batch_size=16,
+            per_device_eval_batch_size=64,
+        )
+
     def add_model(self, name):
         """Add a Hugging Face model to the manager.
 
         Args:
             name (str): The name of the model.
         """
-        self.models[name] = AutoModelForSequenceClassification.from_pretrained("distilbert/distilbert-base-uncased", num_labels = 3)
+        self.models[name] = AutoModelForSequenceClassification.from_pretrained(
+            "distilbert/distilbert-base-uncased", num_labels=3
+        )
 
-    def get_trainable_layers(self,name):
+    def get_trainable_layers(self, name):
         """Print the trainable layers of a model.
 
         Args:
@@ -59,7 +70,7 @@ class HFManager:
         """
         for name, param in self.models[name].named_parameters():
             print(name, param.requires_grad)
-    
+
     def add_trainer(self, name, hf):
         """Add a Hugging Face trainer to the manager.
 
@@ -67,13 +78,15 @@ class HFManager:
             name (str): The name of the trainer.
             hf (HuggingFace): The Hugging Face object.
         """
-        self.trainers[name] = Trainer(self.models[name],
-                  self.training_args,
-                  train_dataset = hf.tokenized_text_data["train"],
-                  eval_dataset = hf.tokenized_text_data["valid"],
-                  tokenizer=hf.tokenizer,
-                  compute_metrics=self.score_metrics)
-        
+        self.trainers[name] = Trainer(
+            self.models[name],
+            self.training_args,
+            train_dataset=hf.tokenized_text_data["train"],
+            eval_dataset=hf.tokenized_text_data["valid"],
+            tokenizer=hf.tokenizer,
+            compute_metrics=self.score_metrics,
+        )
+
     def train_trainer(self, name):
         """Train a Hugging Face trainer.
 
@@ -81,7 +94,43 @@ class HFManager:
             name (str): The name of the trainer.
         """
         import time
+
         start = time.time()
         self.trainers[name].train()
         end = time.time()
-        print("Training execution time ",end-start, 2)
+        print("Training execution time ", end - start, 2)
+
+    def predict_trainer(self, name, split):
+        """Make predictions using a Hugging Face trainer.
+
+        Args:
+            name (str): The name of the trainer.
+            split (dict): The dataset split to make predictions on.
+        """
+        prediction_output = self.trainer[name].predict(split["test"])
+        y_preds = np.argmax(self.pred.predictions, axis=1)
+        self.predictions[name] = dict(
+            {"pred_output": prediction_output, "y_preds": y_preds}
+        )
+
+    def plot_prediction(self, name, split):
+        """Plot the confusion matrix for the predictions.
+
+        Args:
+            name (str): The name of the trainer.
+            split (dict): The dataset split to plot the confusion matrix for.
+        """
+        cm = confusion_matrix(split["test"]["label"], self.predictions[name]["y_preds"])
+        disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+        disp.plot()
+        plt.show()
+
+    def print_eval(self, name, split):
+        """Print the evaluation metrics for the predictions.
+
+        Args:
+            name (str): The name of the trainer.
+            split (dict): The dataset split to evaluate the predictions on.
+        """
+        print("Accuracy :", round(accuracy_score(split["test"]["label"], self.predictions[name]["y_preds"]), 2))
+        print("F1 Score :", round(f1_score(split["test"]["label"], self.predictions[name]["y_preds"], average=None), 2))
