@@ -14,7 +14,7 @@ import tensorflow as tf
 class DatasetProcessor:
     """
     Class that encapsulates methods and attributes related to preprocessing
-    datasets and feature extraction
+    datasets and feature extraction.
 
     Attributes
     ----------
@@ -51,7 +51,7 @@ class DatasetProcessor:
         Splits the dataset into training, validation, and test sets.
     map_labels(label_map={'negative': 2, 'neutral': 0, 'positive': 1})
         Maps the labels to integers.
-    seperate_labels_classes()
+    separate_labels_classes()
         This method is for demonstration purposes and is redundant with the `downsample_balance` method.
 
     Examples
@@ -70,7 +70,6 @@ class DatasetProcessor:
     # Balance the dataset by downsampling
     balanced_dataset = dataset_processor.downsample_balance()
     """
-
 
     def __init__(self, df, label_column="label"):
         self.df = df.copy()
@@ -110,7 +109,7 @@ class DatasetProcessor:
         specifically for a column with integer labels.
 
         Returns:
-            DatasetProcesser: The modified DatasetProcesser object with the balanced dataset.
+            DatasetProcessor: The modified DatasetProcessor object with the balanced dataset.
 
         """
 
@@ -142,8 +141,8 @@ class DatasetProcessor:
         """
         Saves file_name current DataFrame to a CSV file.
 
-        Parameters:
-        - file_path (str): The path (including file name) where to save the CSV.
+        Args:
+            file_path (str): The path (including file name) where to save the CSV.
         """
 
         self.df.to_csv(pre + file_name, index=False)
