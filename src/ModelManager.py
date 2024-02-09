@@ -22,7 +22,7 @@ class ModelManager:
 
     Methods
     -------
-    run_model_config(split_dict, model_config)
+    run_model_config(tvt_dict, model_config)
         Run the model configuration and train an LSTM model based on the provided configuration parameters.
     plot_model_history(model_name, metrics=['loss'])
         Plot the training history for the specified metrics of a given model.
@@ -37,15 +37,15 @@ class ModelManager:
     def __init__(self):
         self.models = {}
 
-    def run_model_config(self,split_dict, model_config): 
+    def run_model_config(self,tvt_dict, model_config): 
         """
         Run the model configuration.
 
         Args
         ----------
-        split_dict : dict
+        tvt_dict : dict
             A dictionary containing the training and validation data splits.
-        model_config : dict
+    model_config : dict
             A dictionary containing the configuration parameters for the model.
 
         Returns
@@ -59,14 +59,14 @@ class ModelManager:
 
         Examples
         --------
-        >>> split_dict = {'X_train': X_train, 'X_val': X_val, 'y_train': y_train, 'y_val': y_val}
+        >>> tvt_dict = {'X_train': X_train, 'X_val': X_val, 'y_train': y_train, 'y_val': y_val}
         >>> model_config = {'model_name': 'LSTM_Model', 'units': 64, 'dropout_rate': 0.3, 'epochs': 50}
-        >>> model_manager.run_model_config(split_dict, model_config)
+        >>> model_manager.run_model_config(tvt_dict, model_config)
         """
 
         
         model_name = model_config['model_name']
-        input_shape=(split_dict['X_train'].shape[1], split_dict['X_train'].shape[2]) #add first layer for lstm
+        input_shape=(tvt_dict['X_train'].shape[1], tvt_dict['X_train'].shape[2]) #add first layer for lstm
         units = model_config.get('units', 32)
         dropout_rate = model_config.get('dropout_rate', 0.2)
         return_sequences_config = model_config.get('return_sequences_config', False)  # Assuming single config, not a list
@@ -111,10 +111,10 @@ class ModelManager:
         
         # Train the model
         start = time.time()
-        lstm_history = lstm_model.fit(split_dict['X_train'], split_dict['y_train'], 
+        lstm_history = lstm_model.fit(tvt_dict['X_train'], tvt_dict['y_train'], 
                                     epochs=epochs, 
                                     batch_size=batch_size, 
-                                    validation_data=(split_dict['X_val'], split_dict['y_val']))
+                                    validation_data=(tvt_dict['X_val'], tvt_dict['y_val']))
         end = time.time()
         
         # Print the training process execution time
@@ -141,13 +141,13 @@ class ModelManager:
                 return
 
             history = self.models[model_name]['history']
-            plt.figure(figsize=(12, 6))
+            plt.figure()
 
             for metric in metrics:
                 if metric in history.history:
                     values = history.history[metric]
                     epochs = range(1, len(values) + 1)
-                    plt.plot(epochs, values, label=f'Training {metric}')
+                    plt.plot(epochs, values,'bo', label=f'Training {metric}')
                 else:
                     print(f"Metric {metric} not found in model history.")
                     
@@ -156,7 +156,7 @@ class ModelManager:
                 val_metric = f'val_{metric}' if 'val_' not in metric else metric
                 if val_metric in history.history:
                     val_values = history.history[val_metric]
-                    plt.plot(epochs, val_values, '--', label=f'Validation {metric}')
+                    plt.plot(epochs, val_values, 'b',label=f'Validation {metric}')
                 else:
                     print(f"Metric {val_metric} not found in model history.")
 
@@ -169,7 +169,7 @@ class ModelManager:
 
     def predict(self, model_name, X_test, return_class_indices=True):
             """
-            Make predictions with the specified model on the provided test data.
+            Make predictions with the specified model on the provided test data. 
 
             Args:
                 model_name: The name of the model to use for predictions.

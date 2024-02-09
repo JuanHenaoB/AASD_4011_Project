@@ -2,7 +2,7 @@ import logging
 import matplotlib.pyplot as plt
 from datasets import load_dataset, DatasetDict
 import sys
-from DatasetProcesser import DatasetProcessor
+from src.DatasetProcesser import DatasetProcessor
 import pandas as pd
 from gensim.models import KeyedVectors
 
@@ -133,7 +133,7 @@ class DatasetManager:
             None
         """
         try:
-            df = pd.read_csv(data_path, encoding="latin")
+            df = pd.read_csv(data_path, encoding="latin", header=True)
             df.rename(columns=columns, inplace=True)
             self._dataframes[name] = df
             if not self.active_dataframe_name:
@@ -144,6 +144,23 @@ class DatasetManager:
             sys.exit("Cannot continue without dataframe.")
         except Exception as e:
             logging.error(f"Error loading dataframe: {e}")
+
+    def load_processed(self,name,data_path):
+        try:
+            df = pd.read_csv(data_path, encoding="latin")
+            self._dataframes[name] = df
+            if not self.active_dataframe_name:
+                self.active_dataframe = name
+            logging.info(f"Dataframe {name} loaded successfully.")
+        except FileNotFoundError as e:
+            logging.error(f"Critical error loading dataframe: {e}")
+            sys.exit("Cannot continue without dataframe.")
+        except Exception as e:
+            logging.error(f"Error loading dataframe: {e}")
+
+
+
+
 
     def store_processed_dataset(self, name, processed_data):
         """
@@ -215,3 +232,40 @@ class DatasetManager:
             return DatasetProcessor(self._dataframes[name])
         else:
             raise KeyError(f"Dataset '{name}' not found.")
+
+    def get_financial_news(self):
+        """This method is for demonstration of the deep learning process."""
+        news = pd.read_csv("all-data.csv", encoding="latin", header=None)
+        news.rename(columns={0: "label", 1: "news"}, inplace=True)
+        return news
+
+    def plot_external(self, df):
+        """
+            This method is for demonstration of the deep learning process.
+
+            plot from external source
+        Args:
+            df (Dataframe): dataframe to plot
+
+        Returns:
+            None
+        """
+        df["label"].value_counts(ascending=True).plot.barh()
+        plt.title("Balance of the target classes in the dataset")
+        plt.show()
+        print(df["label"].value_counts())
+
+    def check_doc_len(self, df):
+        """
+        This method is for demonstration of the deep learning process.
+
+        Args:
+            param1 (type): Description of param1
+            param2 (type): Description of param2
+
+        Returns:
+            type: Description of return value
+        """
+
+        df["len"] = df["news"].apply(lambda text: len(text.split()))
+        return df["len"].max()

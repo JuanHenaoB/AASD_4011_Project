@@ -1,3 +1,4 @@
 /logs
 Pipfile
 Pipfile.lock
+data/GoogleNews-vectors-negative300.bin

@@ -19,12 +19,13 @@ class HFManager:
         trainers (dict): A dictionary that stores the Hugging Face trainers.
     """
 
-    def __init__(self):
+    def __init__(self, ckpt ='distilbert/distilbert-base-uncased'):
         self.training_args = None
         self.models = {}
-        self.ckpt = "-base-uncased"
+        self.ckpt = "distilbert/distilbert-base-uncased"
         self.trainers = {}
         self.predictions = {}
+        self.training_history = {}
 
     def score_metrics(self, pred):
         """Calculate the accuracy and F1 score of the predictions.
@@ -71,15 +72,26 @@ class HFManager:
         for name, param in self.models[name].named_parameters():
             print(name, param.requires_grad)
 
-    def add_trainer(self, name, hf):
+
+    def freeze_layers(self, name):
+        """Freeze all distilbert layers
+
+        Args:
+            name (str): The name of the model.
+        """
+        for name, param in self.models[name].named_parameters():
+            param.requires_grad = False
+
+
+    def add_trainer(self, trainer_name,model_name, hf):
         """Add a Hugging Face trainer to the manager.
 
         Args:
             name (str): The name of the trainer.
             hf (HuggingFace): The Hugging Face object.
         """
-        self.trainers[name] = Trainer(
-            self.models[name],
+        self.trainers[trainer_name] = Trainer(
+            self.models[model_name],
             self.training_args,
             train_dataset=hf.tokenized_text_data["train"],
             eval_dataset=hf.tokenized_text_data["valid"],
@@ -96,9 +108,23 @@ class HFManager:
         import time
 
         start = time.time()
-        self.trainers[name].train()
+        train_result = self.trainers[name].train()
         end = time.time()
-        print("Training execution time ", end - start, 2)
+
+        # Convert TrainOutput to dictionary
+        train_result_dict = train_result.__dict__
+
+        # Calculate execution time
+        execution_time = round(end - start, 2)
+
+        # Store the training result and execution time in the training_history
+        self.training_history[name] = {
+            "train_result": train_result_dict,
+            "execution_time": execution_time
+        }
+
+        print("Training execution time ", execution_time)
+
 
     def predict_trainer(self, name, split):
         """Make predictions using a Hugging Face trainer.
@@ -108,11 +134,15 @@ class HFManager:
             split (dict): The dataset split to make predictions on.
         """
         prediction_output = self.trainer[name].predict(split["test"])
+        
         y_preds = np.argmax(self.pred.predictions, axis=1)
         self.predictions[name] = dict(
             {"pred_output": prediction_output, "y_preds": y_preds}
         )
-
+        return prediction_output
+    
+    
+    
     def plot_prediction(self, name, split):
         """Plot the confusion matrix for the predictions.
 
