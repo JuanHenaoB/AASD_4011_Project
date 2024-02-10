@@ -80,6 +80,13 @@ class DatasetProcessor:
     def check_balance(self):
         """
         Visualizes the balance of classes in the dataset.
+
+        This method plots a horizontal bar chart to visualize the balance of classes in the dataset.
+        It counts the occurrences of each class in the label column and displays the chart.
+        If the label column is not set or not found in the DataFrame, a warning message is logged.
+
+        Returns:
+            None
         """
         if self.label_column and self.label_column in self.df.columns:
             self.df[self.label_column].value_counts(ascending=True).plot.barh()
@@ -292,7 +299,7 @@ class DatasetProcessor:
         """
         Maps the labels to integer
 
-        Args:
+        Parameters:
             labelmap (dict): what to map the columns too
 
         Returns:
@@ -307,9 +314,6 @@ class DatasetProcessor:
 
         Used to split
 
-        Args:
-            param1 (type): Description of param1
-            param2 (type): Description of param2
 
         Returns:
             type: Description of return value
@@ -321,15 +325,15 @@ class DatasetProcessor:
 
     def downsample_labels(self, financial_news_n, financial_news_0, financial_news_1):
         """
-            This class is for demonstration of the deep learning process,
-            it is redundent with the downsample method.
+        Downsamples the labels to have an equal number of samples for each label.
         
         Args:
-            param1 (type): Description of param1
-            param2 (type): Description of param2
+            financial_news_n (DataFrame): DataFrame containing negative labeled news.
+            financial_news_0 (DataFrame): DataFrame containing neutral labeled news.
+            financial_news_1 (DataFrame): DataFrame containing positive labeled news.
         
         Returns:
-            type: Description of return value
+            tuple: A tuple containing the downsampled DataFrames for neutral and positive labeled news.
         """
         
         length = len(financial_news_n)

@@ -60,7 +60,7 @@ class HFManager:
             name (str): The name of the model.
         """
         self.models[name] = AutoModelForSequenceClassification.from_pretrained(
-            "distilbert/distilbert-base-uncased", num_labels=3
+            "distilbert/distilbert-base-uncased", num_labels = 3
         )
 
     def get_trainable_layers(self, name):
@@ -83,7 +83,7 @@ class HFManager:
             param.requires_grad = False
 
 
-    def add_trainer(self, trainer_name,model_name, hf):
+    def add_trainer(self, model_name,trainer_name, hf):
         """Add a Hugging Face trainer to the manager.
 
         Args:
