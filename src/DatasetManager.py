@@ -260,8 +260,7 @@ class DatasetManager:
         This method is for demonstration of the deep learning process.
 
         Args:
-            param1 (type): Description of param1
-            param2 (type): Description of param2
+            df (dataframe): dataframe
 
         Returns:
             type: Description of return value
